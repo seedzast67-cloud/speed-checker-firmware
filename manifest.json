@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "firmware": "",
+  "version": "1.0.1",
+  "firmware": "https://github.com/seedzast67-cloud/speed-checker-firmware/releases/download/v1.0.1/speed-checker.bin",
   "sha256": "",
-  "notes": "No firmware release has been published yet."
+  "notes": "ปรับปรุงระบบ"
 }
