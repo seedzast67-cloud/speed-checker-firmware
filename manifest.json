@@ -1,6 +1,6 @@
 {
-  "version": "1.0.2",
-  "firmware": "https://raw.githubusercontent.com/seedzast67-cloud/speed-checker-firmware/main/speed-checker.bin",
+  "version": "1.0.3",
+  "firmware": "https://github.com/seedzast67-cloud/speed-checker-firmware/releases/download/v1.0.3/speed-checker.bin",
   "sha256": "",
-  "notes": "OTA test release"
+  "notes": "OTA test v1.0.3"
 }
