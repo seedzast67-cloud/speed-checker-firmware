@@ -1,6 +1,6 @@
 {
-  "version": "1.12",
-  "firmware": "https://github.com/seedzast67-cloud/speed-checker-firmware/releases/download/v1.12/speed-checker.bin",
+  "version": "1.13",
+  "firmware": "https://github.com/seedzast67-cloud/speed-checker-firmware/releases/download/v1.13/speed-checker.bin",
   "sha256": "ae6abf2c9293a8ad4990afd7dbd5c9b8ad8897b55ed6be3563049b6d571b1103",
   "notes": "Battery gauge and low-battery screen improvements"
 }
