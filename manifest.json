@@ -1,6 +1,6 @@
 {
-  "version": "1.18",
-  "firmware": "https://github.com/seedzast67-cloud/speed-checker-firmware/releases/download/v1.18/speed-checker.bin",
-  "sha256": "ae6abf2c9293a8ad4990afd7dbd5c9b8ad8897b55ed6be3563049b6d571b1103",
-  "notes": "Battery gauge and low-battery screen improvements"
+  "version": "1.59",
+  "firmware": "https://github.com/seedzast67-cloud/speed-checker-firmware/releases/download/v1.59/speed-checker.bin",
+  "sha256": "31d0322d09fac14c4a64bb71c25a991072530e9bd08f58dca89b338d2e505fc8",
+  "notes": "B-LINK Cloud: lap upload and shared calibration"
 }
