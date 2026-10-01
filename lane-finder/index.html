@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>เช็คเลนวิ่ง Mini 4WD</title>
+<style>
+  :root { --bg:#0b1220; --card:#151e33; --line:#26324d; --txt:#eaf0ff; --mute:#8fa0c4; --acc:#ffcc00; --ok:#37d67a; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--txt); font:16px/1.5 system-ui,"Noto Sans Thai",sans-serif;
+         padding:16px; padding-bottom:calc(32px + env(safe-area-inset-bottom)); }
+  main { max-width:560px; margin:0 auto; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  p.sub { margin:0 0 16px; color:var(--mute); font-size:14px; }
+  label { display:block; font-size:14px; color:var(--mute); margin:14px 0 6px; }
+  input, textarea { width:100%; background:var(--card); color:var(--txt); border:1px solid var(--line);
+         border-radius:12px; padding:12px; font:inherit; }
+  textarea { min-height:170px; resize:vertical; }
+  input:focus, textarea:focus { outline:2px solid var(--acc); border-color:transparent; }
+  .row { display:flex; gap:8px; margin-top:10px; }
+  button { flex:1; background:var(--card); color:var(--txt); border:1px solid var(--line); border-radius:12px;
+         padding:12px; font:inherit; font-weight:600; }
+  button.primary { background:var(--acc); color:#1a1400; border-color:var(--acc); }
+  .stats { display:flex; gap:8px; margin-top:18px; }
+  .stat { flex:1; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px; text-align:center; }
+  .stat b { display:block; font-size:24px; color:var(--acc); }
+  .stat span { font-size:12px; color:var(--mute); }
+  .hit { background:var(--card); border:1px solid var(--line); border-left:4px solid var(--acc);
+         border-radius:12px; padding:12px; margin-top:10px; }
+  .hit .big { display:flex; align-items:baseline; gap:14px; font-weight:700; font-size:20px; }
+  .hit .big em { font-style:normal; color:var(--acc); }
+  .hit .nm { color:var(--mute); font-size:13px; margin-top:2px; }
+  .hit details { margin-top:6px; font-size:14px; color:var(--mute); }
+  .hit li { margin:2px 0; }
+  .msg { margin-top:16px; color:var(--mute); font-size:14px; }
+  .warn { color:#ff9d9d; }
+  h2 { font-size:16px; margin:22px 0 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🏁 เช็คเลนวิ่ง Mini 4WD</h1>
+  <p class="sub">ก๊อปตารางรอบแข่งจากเว็บมาวาง แล้วพิมพ์ชื่อทีมคุณ</p>
+
+  <label for="team">ชื่อทีมของคุณ</label>
+  <input id="team" placeholder="เช่น Speed Boy" autocomplete="off" enterkeyhint="search">
+
+  <label for="src">วางข้อมูลรอบแข่งที่ก๊อปมา</label>
+  <textarea id="src" placeholder="รอบที่ 1&#10;เลน 1 ทีมแดง&#10;เลน 2 Speed Boy&#10;..."></textarea>
+
+  <div class="row">
+    <button id="paste" type="button">📋 วางจากคลิปบอร์ด</button>
+    <button id="clear" type="button">ล้าง</button>
+  </div>
+
+  <div id="out"></div>
+</main>
+
+<script src="parser.js"></script>
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+  var team = $("team"), src = $("src"), out = $("out");
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
+    return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]; }); }
+
+  function save() {
+    try { localStorage.setItem("lf_team", team.value); localStorage.setItem("lf_src", src.value); } catch (e) {}
+  }
+
+  function render() {
+    save();
+    var rounds = LaneParser.parse(src.value);
+    if (!src.value.trim()) { out.innerHTML = ""; return; }
+    if (!rounds.length) {
+      out.innerHTML = '<p class="msg warn">อ่านรอบ/เลนจากข้อความไม่ได้ ลองก๊อปให้ครบทั้งรอบที่เห็นหัวข้อ "รอบ" และ "เลน" ด้วย</p>';
+      return;
+    }
+    var names = LaneParser.allNames(rounds);
+    var html = '<div class="stats">' +
+      '<div class="stat"><b>' + names.length + '</b><span>จำนวนทีม</span></div>' +
+      '<div class="stat"><b>' + rounds.length + '</b><span>จำนวนรอบ</span></div></div>';
+
+    var q = team.value.trim();
+    if (!q) {
+      html += '<p class="msg">พิมพ์ชื่อทีมด้านบนเพื่อดูว่าวิ่งรอบไหน เลนอะไร</p>';
+    } else {
+      var hits = LaneParser.findTeam(rounds, q);
+      if (!hits.length) {
+        html += '<p class="msg warn">ไม่พบชื่อ "' + esc(q) + '" ลองพิมพ์สั้นลงหรือสะกดให้ตรงกับในตาราง</p>';
+      } else {
+        var matched = {}; hits.forEach(function (h) { matched[h.name] = true; });
+        var mn = Object.keys(matched);
+        html += '<h2>พบ ' + hits.length + ' รอบ' + (mn.length > 1 ? ' (ตรงกับ ' + mn.length + ' ชื่อ)' : '') + '</h2>';
+        hits.forEach(function (h) {
+          html += '<div class="hit"><div class="big"><span>รอบ <em>' + h.round + '</em></span><span>เลน <em>' + h.lane + '</em></span></div>';
+          if (mn.length > 1) html += '<div class="nm">' + esc(h.name) + '</div>';
+          html += '<details><summary>คู่แข่งในรอบนี้ (' + h.others.length + ')</summary><ul>' +
+            h.others.map(function (o) { return '<li>เลน ' + o.lane + ': ' + esc(o.name) + '</li>'; }).join("") +
+            '</ul></details></div>';
+        });
+      }
+    }
+    out.innerHTML = html;
+  }
+
+  try { team.value = localStorage.getItem("lf_team") || ""; src.value = localStorage.getItem("lf_src") || ""; } catch (e) {}
+  team.addEventListener("input", render);
+  src.addEventListener("input", render);
+  $("clear").onclick = function () { src.value = ""; render(); };
+  $("paste").onclick = function () {
+    if (!navigator.clipboard || !navigator.clipboard.readText) { src.focus(); return; }
+    navigator.clipboard.readText().then(function (t) { src.value = t; render(); }, function () { src.focus(); });
+  };
+  render();
+</script>
+</body>
+</html>
